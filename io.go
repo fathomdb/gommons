@@ -27,6 +27,17 @@ func FileExists(path string) (exists bool, err error) {
     return stat != nil, nil
 }
 
+func IsDirectory(path string) (exists bool, err error) {
+    stat, err := StatIfExists(path)
+    if err != nil {
+        return false, err
+    }
+    if stat == nil {
+        return false, nil
+    }
+    return stat.IsDir(), nil
+}
+
 func ListDirectory(dirname string) (files []os.FileInfo, err error) {
     f, err := os.Open(dirname)
     if err != nil {
