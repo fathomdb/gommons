@@ -4,6 +4,7 @@ import (
     "io/ioutil"
     "log"
     "os"
+    "sort"
     "syscall"
 )
 
@@ -44,12 +45,31 @@ func ListDirectory(dirname string) (files []os.FileInfo, err error) {
         log.Printf("Cannot open dir %s\n", dirname)
         return nil, err
     }
+    defer f.Close()
     files, err = f.Readdir(-1)
-    f.Close()
     if err != nil {
         log.Printf("Cannot read dir %s\n", dirname)
         return nil, err
     }
+
+    return files, nil
+}
+
+// Lists a directory; unlike ListDirectory this returns just the names, and sorts them
+func ListDirectoryNames(dirname string) (files []string, err error) {
+    f, err := os.Open(dirname)
+    if err != nil {
+        log.Printf("Cannot open dir %s\n", dirname)
+        return nil, err
+    }
+    defer f.Close()
+    files, err = f.Readdirnames(-1)
+    if err != nil {
+        log.Printf("Cannot read dir %s\n", dirname)
+        return nil, err
+    }
+
+    sort.Strings(files)
 
     return files, nil
 }
