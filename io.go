@@ -74,7 +74,7 @@ func ListDirectoryNames(dirname string) (files []string, err error) {
     return files, nil
 }
 
-func TryReadFile(path string, defaultValue string) (string, error) {
+func TryReadTextFile(path string, defaultValue string) (string, error) {
     contents, err := ioutil.ReadFile(path)
     if err != nil {
         if patherr, ok := err.(*os.PathError); ok {
@@ -93,4 +93,25 @@ func TryReadFile(path string, defaultValue string) (string, error) {
         return "", err
     }
     return string(contents), nil
+}
+
+func TryReadFile(path string) ([]byte, error) {
+    contents, err := ioutil.ReadFile(path)
+    if err != nil {
+        if patherr, ok := err.(*os.PathError); ok {
+            if syserr, ok := patherr.Err.(syscall.Errno); ok {
+                if syserr == 2 {
+                    return nil, nil
+                }
+
+                log.Printf("Error reading file.  code=%v\n", int(syserr))
+            } else {
+                log.Printf("Error reading file %T\n", patherr.Err)
+            }
+        } else {
+            log.Printf("Error reading file %T\n", err)
+        }
+        return nil, err
+    }
+    return contents, nil
 }

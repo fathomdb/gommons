@@ -3,7 +3,6 @@ package gommons
 import (
     "encoding/json"
     "fmt"
-    "io/ioutil"
     "log"
     "os"
 )
@@ -40,17 +39,21 @@ func CheckSafeName(name string) (err error) {
     return nil
 }
 
-func ReadJson(path string, dest interface{}) error {
-    bytes, err := ioutil.ReadFile(path)
+func ReadJson(path string, dest interface{}) (found bool, err error) {
+    bytes, err := TryReadFile(path)
     if err != nil {
-        return err
+        return false, err
+    }
+
+    if bytes == nil {
+        return false, nil
     }
 
     err = json.Unmarshal(bytes, dest)
     if err != nil {
         log.Printf("Invalid JSON in file %s", path)
-        return err
+        return false, err
     }
 
-    return nil
+    return true, nil
 }
